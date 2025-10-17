@@ -31,7 +31,6 @@ export const authMiddleware = (req, res, next) => {
             req.admin = { name: decoded.name };
         }
 
-        console.log('LOOOG', decoded)
         next();
 
     } catch (err) {

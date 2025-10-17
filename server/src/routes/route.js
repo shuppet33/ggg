@@ -9,7 +9,7 @@ export const router = new Router()
 
 
 
-// вход
+
 router.post('/login', async (req, res) => {
     try {
         const { name, password } = req.body;
@@ -96,11 +96,7 @@ router.post('/logout', (req, res) => {
     res.json({ success: true, message: 'Выход выполнен' });
 });
 
-// админ регистрирует команду (название + пароль)
-// админ запускает квест
 
-// админ панель
-// регистрация команд
 router.post('/admin/register', authMiddleware, async (req, res) => {
     try {
         // ✅ Проверяем по req.admin
@@ -137,6 +133,7 @@ router.post('/admin/register', authMiddleware, async (req, res) => {
             message: "Команда успешно зарегистрирована",
             team: { name: newTeam.name, password: passwordPlain }
         });
+
     } catch (error) {
         console.error("Ошибка при регистрации команды:", error);
         return res.status(500).json({ success: false, message: "Ошибка при регистрации команды" });

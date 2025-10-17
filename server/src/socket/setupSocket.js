@@ -6,8 +6,6 @@ export const SetupSocket = (io) => {
 
 
     io.on('connection', (socket) => {
-
-
         const token = socket.data.token
 
         if (!token) {
@@ -27,6 +25,7 @@ export const SetupSocket = (io) => {
         socket.role = payload.role;
         socket.name = payload.name;
 
+
         // Админская логика
         if (socket.role === 'admin') {
             socket.join('admins');
@@ -35,10 +34,22 @@ export const SetupSocket = (io) => {
         // Командная логика
         if (socket.role === 'team') {
             const team = teams.find(t => t.name === socket.name);
+
             if (!team) {
                 console.log('Команда не найдена, отключаем');
                 return socket.disconnect();
             }
+
+            const visibleTasks = team.order.map((taskId, i) =>
+                i <= team.currentTaskIndex
+                    ? { title: tasks[taskId].title, description: tasks[taskId].description, hint: tasks[taskId].hint }
+                    : null
+            );
+
+            socket.emit('sync_state', {
+                tasks: visibleTasks,
+                activeIndex: team.currentTaskIndex
+            });
 
             socket.team = team;
             socket.join('team:' + team.name);
