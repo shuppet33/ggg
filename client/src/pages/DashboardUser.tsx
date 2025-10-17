@@ -19,6 +19,7 @@ export const DashboardUser = () => {
     const [tasks, setTasks] = useState<(VisibleTask | null)[]>(Array(6).fill(null));
     const [activeIndex, setActiveIndex] = useState<number | null>(null); // текущая активная карточка
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isFinishModalOpen, setIsFinishModalOpen] = useState(false);
     const { logout } = useContext(AuthContext);
 
     const { register, handleSubmit, reset } = useForm();
@@ -58,12 +59,17 @@ export const DashboardUser = () => {
             alert(`Код верный! Следующая локация доступна: ${data.nextHint}`);
         });
 
+        socket.on("team:finished", () => {
+            setIsModalOpen(false);
+            setIsFinishModalOpen(true);
+        });
 
         return () => {
             socket.off("sync_state");
             socket.off("game_started");
             socket.off("location_open");
             socket.off("team:update");
+            socket.off("team:finished");
         };
     }, []);
 
@@ -168,6 +174,55 @@ export const DashboardUser = () => {
                                 Отправить
                             </button>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Финальная модалка */}
+            {isFinishModalOpen && (
+                <div
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        backgroundColor: "rgba(0,0,0,0.5)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 1000,
+                    }}
+                >
+                    <div
+                        style={{
+                            backgroundColor: "#fff",
+                            padding: "30px",
+                            borderRadius: "12px",
+                            minWidth: "300px",
+                            textAlign: "center",
+                            position: "relative",
+                        }}
+                    >
+                        <button
+                            onClick={() => setIsFinishModalOpen(false)}
+                            style={{
+                                position: "absolute",
+                                top: "8px",
+                                right: "8px",
+                                border: "none",
+                                background: "transparent",
+                                fontSize: "18px",
+                                cursor: "pointer",
+                            }}
+                        >
+                            &times;
+                        </button>
+
+                        <h2>🎉 Вы всё прошли!</h2>
+                        <p style={{ marginTop: "10px" }}>
+                            Вернитесь в стартовую точку для финала квеста.
+                        </p>
                     </div>
                 </div>
             )}

@@ -115,7 +115,12 @@ export const SetupSocket = (io) => {
 
             if (team.currentTaskIndex >= tasks.length) {
                 team.finished = true;
-                socket.emit('status', { success: true, message: 'Вы прошли все локации!' });
+
+                console.log(`Команда ${team.name} прошла квест 🎉`);
+
+                return io.to(`team:${team.name}`).emit('team:finished', {
+                    message: 'Вы прошли все локации!',
+                });
             } else {
                 const nextTaskId = team.order[team.currentTaskIndex];
                 const nextTask = tasks[nextTaskId];
