@@ -7,7 +7,27 @@ import {DashboardAdmin} from './pages/DashboardAdmin.tsx'
 import {NoAccess} from './pages/NoAccess.tsx'
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 import {LoginPage} from "./pages/LoginPage.tsx";
+import {createGlobalStyle} from "styled-components";
 
+const GlobalStyle = createGlobalStyle`
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+    overflow-x: hidden;
+    background: black;
+  }
+
+  #root {
+    border: none;
+    outline: none;
+  }
+`;
 
 
 const role = localStorage.getItem('role') || 'guest'
@@ -45,6 +65,7 @@ function App() {
 
     return (
         <AuthContextProvider>
+            <GlobalStyle/>
             <BrowserRouter>
                 <Routes>
                     <Route path="/login" element={<LoginPage />} />

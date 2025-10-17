@@ -67,9 +67,10 @@ export const SetupSocket = (io) => {
             console.log('Игра началась админом');
 
             teams.forEach(team => {
+                const taskForTeam = tasks[team.order[team.currentTaskIndex]];
                 io.to('team:' + team.name).emit('location_open', {
                     taskIndex: team.currentTaskIndex,
-                    task: tasks[team.order[team.currentTaskIndex]] // первая задача
+                    task: { ...taskForTeam }
                 });
             });
 
@@ -88,15 +89,15 @@ export const SetupSocket = (io) => {
         });
 
 
-        socket.on('submit_code', (data) => {
+        socket.on('submit_code', (data, callback) => {
             if (socket.role !== 'team') {
-                return socket.emit('status', { success: false, message: 'Нет прав для отправки кода' });
+                return callback({ success: false, message: 'Нет прав для отправки кода' });
             }
 
             const team = socket.team;
 
             if (!gameState.started) {
-                return socket.emit('status', { success: false, message: 'Квест ещё не начался!' });
+                return callback({ success: false, message: 'Квест ещё не начался!' });
             }
 
             const currentTaskIndex = team.currentTaskIndex;
@@ -104,34 +105,35 @@ export const SetupSocket = (io) => {
             const task = tasks[taskId];
 
             if (!task) {
-                return socket.emit('status', { success: false, message: 'Задание не найдено' });
+                return callback({ success: false, message: 'Задание не найдено' });
             }
 
             if (task.code !== data.code) {
-                return socket.emit('status', { success: false, message: 'Неверный код' });
+                return callback({ success: false, message: 'Неверный код' });
             }
 
             team.currentTaskIndex++;
 
-            if (team.currentTaskIndex >= tasks.length) {
+            if (team.currentTaskIndex >= team.order.length) {
                 team.finished = true;
 
                 console.log(`Команда ${team.name} прошла квест 🎉`);
 
-                return io.to(`team:${team.name}`).emit('team:finished', {
+                io.to(`team:${team.name}`).emit('team:finished', {
                     message: 'Вы прошли все локации!',
                 });
+
+                return callback({ success: true, message: 'Вы прошли все локации!' });
             } else {
                 const nextTaskId = team.order[team.currentTaskIndex];
                 const nextTask = tasks[nextTaskId];
 
-                // Отправляем всем участникам команды обновление прогресса
                 io.to('team:' + team.name).emit('team:update', {
                     currentTaskIndex: team.currentTaskIndex,
                     nextHint: nextTask?.hint || ''
                 });
 
-                socket.emit('status', { success: true, message: 'Код верный!' });
+                return callback({ success: true, message: 'Код верный!' });
             }
         });
 

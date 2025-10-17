@@ -3,24 +3,20 @@ import {AuthContext} from "../context/AuthContext.tsx";
 import {socket} from "../App.tsx";
 import {type SubmitHandler, useForm} from "react-hook-form";
 import axios from "axios";
+import styled, { keyframes } from "styled-components";
 
-
-
-export type StateGameType = 'start' | 'stop'
+export type StateGameType = 'start' | 'stop';
 export type DataTeamType = {
-    teamName: string,
-    password: ''
-}
+    teamName: string;
+    password: '';
+};
 
 export const DashboardAdmin = () => {
-    const [stateGame, setStateGame] = useState<StateGameType>('stop')
-    const [dataTeam, setDataTeam] = useState<DataTeamType>({teamName: '', password: ''})
-    const {role, logout} = useContext(AuthContext)
+    const [stateGame, setStateGame] = useState<StateGameType>('stop');
+    const [dataTeam, setDataTeam] = useState<DataTeamType>({ teamName: '', password: '' });
+    const { role, logout } = useContext(AuthContext);
 
-    const {
-        register,
-        handleSubmit
-    } = useForm()
+    const { register, handleSubmit } = useForm();
 
     useEffect(() => {
         if (stateGame === 'start') {
@@ -44,23 +40,150 @@ export const DashboardAdmin = () => {
     };
 
     return (
-        <div>ADMIN Dashboard <br/>
-        <button onClick={() => logout()}>Выйти</button> <br/>
-        <button onClick={() => stateGame === 'start' ? setStateGame('stop') : setStateGame('start')}> {stateGame} </button> <br/> <br/>
+        <Wrapper>
+            <MatrixBackground />
+            <Container>
+                <Title>ADMIN DASHBOARD</Title>
 
-            <div>
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <input type="text" {...register('teamName')}/> <br/>
-                    <button> Регистрация команды </button> <br/> <br/>
+                <Buttons>
+                    <Button onClick={() => logout()}>Выйти</Button>
+                    <Button
+                        active={stateGame === 'start'}
+                        onClick={() => setStateGame(stateGame === 'start' ? 'stop' : 'start')}
+                    >
+                        {stateGame === 'start' ? 'Остановить игру' : 'Запустить игру'}
+                    </Button>
+                </Buttons>
 
-                    <div> Навание команды: {dataTeam.teamName} </div> <br/>
-                    <div> Пароль: {dataTeam.password} </div> <br/>
+                <Form onSubmit={handleSubmit(onSubmit)}>
+                    <Label>Название команды</Label>
+                    <Input type="text" {...register('teamName')} placeholder="Введите название..." />
+                    <Button type="submit">Регистрация команды</Button>
 
-                </form>
-            </div> <br/> <br/>
+                    {dataTeam.teamName && (
+                        <TeamInfo>
+                            <p><strong>Команда:</strong> {dataTeam.teamName}</p>
+                            <p><strong>Пароль:</strong> {dataTeam.password}</p>
+                        </TeamInfo>
+                    )}
+                </Form>
+            </Container>
+        </Wrapper>
+    );
+};
 
-            <button> тест</button>
+/* === STYLES === */
 
-        </div>
-    )
-}
+const matrixRain = keyframes`
+  0% { background-position: 0 0; }
+  100% { background-position: 0 1000px; }
+`;
+
+const Wrapper = styled.div`
+  position: relative;
+  min-height: 100vh;
+  background: black;
+  overflow: hidden;
+  color: #00ff9f;
+  font-family: "Share Tech Mono", monospace;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const MatrixBackground = styled.div`
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+    rgba(0, 255, 100, 0.05) 50%,
+    transparent 50%
+  ),
+  linear-gradient(90deg, rgba(0, 255, 100, 0.05) 50%, transparent 50%);
+  background-size: 10px 10px;
+  animation: ${matrixRain} 10s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+`;
+
+const Container = styled.div`
+  z-index: 2;
+  background: rgba(0, 20, 0, 0.85);
+  border: 2px solid #00ff9f;
+  border-radius: 12px;
+  padding: 40px;
+  width: 420px;
+  text-align: center;
+  box-shadow: 0 0 20px #00ff9f44;
+`;
+
+const Title = styled.h1`
+  font-size: 1.6rem;
+  text-shadow: 0 0 10px #00ff9f;
+  margin-bottom: 25px;
+`;
+
+const Buttons = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 25px;
+  gap: 10px;
+`;
+
+const Button = styled.button.withConfig({
+    shouldForwardProp: (prop) => prop !== 'active'
+})<{ active?: boolean }>`
+    flex: 1;
+    background: ${({ active }) => (active ? '#00ff9f' : 'transparent')};
+    color: ${({ active }) => (active ? '#000' : '#00ff9f')};
+    border: 2px solid #00ff9f;
+    border-radius: 6px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+
+    &:hover {
+        background: #00ff9f;
+        color: #000;
+        box-shadow: 0 0 10px #00ff9f;
+    }
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+`;
+
+const Label = styled.label`
+  font-size: 0.9rem;
+  text-align: left;
+  color: #00ff9fcc;
+`;
+
+const Input = styled.input`
+  background: transparent;
+  border: 2px solid #00ff9f;
+  color: #00ff9f;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: inherit;
+
+  &::placeholder {
+    color: #00ff9f66;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 10px #00ff9f;
+  }
+`;
+
+const TeamInfo = styled.div`
+  margin-top: 20px;
+  background: rgba(0, 255, 100, 0.1);
+  border-radius: 6px;
+  padding: 10px;
+  border: 1px solid #00ff9f44;
+`;
+
