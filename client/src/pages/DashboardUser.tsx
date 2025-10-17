@@ -204,6 +204,7 @@ export const DashboardUser = () => {
     const [activeIndex, setActiveIndex] = useState<number | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isFinishModalOpen, setIsFinishModalOpen] = useState(false);
+    const [userName, setUserName] = useState<string>('');
     const { logout } = useContext(AuthContext);
 
     const { register, handleSubmit, reset, setError, clearErrors, formState: { errors } } = useForm<FormData>();
@@ -219,6 +220,12 @@ export const DashboardUser = () => {
     };
 
     useEffect(() => {
+
+        socket.on('user_info', (data: { name: string }) => {
+            setUserName(data.name);
+        });
+
+
         socket.on("sync_state", (state: { tasks: VisibleTask[]; activeIndex: number }) => {
             setTasks(state.tasks);
             setActiveIndex(state.activeIndex);
@@ -256,6 +263,7 @@ export const DashboardUser = () => {
         });
 
         return () => {
+            socket.off('user_info');
             socket.off("sync_state");
             socket.off("game_started");
             socket.off("location_open");
@@ -283,7 +291,7 @@ export const DashboardUser = () => {
         <>
             <GlobalStyle />
             <Wrapper>
-                <Title>USER Dashboard</Title>
+                <Title>Команда --- {userName || "USER"}!</Title>
                 <LogoutButton onClick={logout}>Выйти</LogoutButton>
 
                 <Grid>

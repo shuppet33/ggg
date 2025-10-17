@@ -46,6 +46,8 @@ export const SetupSocket = (io) => {
                     : null
             );
 
+            socket.emit('user_info', { name: socket.name });
+
             socket.emit('sync_state', {
                 tasks: visibleTasks,
                 activeIndex: team.currentTaskIndex

@@ -3,10 +3,12 @@ export const gameState = {
 }
 
 export const tasks = [
-    {id: 0, title: "Локация 1", hint: "Подсказка 1", code: "ABC123"},
-    {id: 1, title: "Локация 2", hint: "Подсказка 2", code: "XYZ789"},
-    {id: 2, title: "Локация 3", hint: "Подсказка 3", code: "QWE456"},
-    {id: 3, title: "Локация 4", hint: "Подсказка 4", code: "RTY234"}
+    {id: 0, title: "Идентификация цели", hint: "Подсказка 1", code: "connection"},
+    {id: 1, title: "Обезвреживание скрипта", hint: "Подсказка 2", code: "debugger"},
+    {id: 2, title: "Перехват и дешифровка", hint: "Подсказка 3", code: "mask"},
+    {id: 3, title: "Восстановление кода доступа", hint: "Подсказка 4", code: "entrance"},
+    {id: 4, title: "Сборка аппаратного ключа", hint: "Подсказка 4", code: "energy"},
+    {id: 5, title: "Тест безопасности", hint: "Подсказка 4", code: "defense"}
 ]
 
 
